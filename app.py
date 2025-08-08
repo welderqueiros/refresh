@@ -1,13 +1,14 @@
-@app.route('/run-script')
-def run_script():
+from flask import Flask, jsonify
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+import os
+
+app = Flask(__name__)
+
+def run_selenium_script():
     try:
-        from selenium import webdriver
-        from selenium.webdriver.chrome.options import Options
-        from selenium.webdriver.chrome.service import Service
-        from webdriver_manager.chrome import ChromeDriverManager
-        
-        print("Iniciando Selenium...")
-        
         chrome_options = Options()
         chrome_options.add_argument('--headless')
         chrome_options.add_argument('--no-sandbox')
@@ -20,15 +21,17 @@ def run_script():
         title = driver.title
         driver.quit()
         
-        return jsonify({
-            "success": True,
-            "output": f"Título da página: {title}",
-            "error": ""
-        })
-        
+        return {"success": True, "result": f"Título: {title}"}
     except Exception as e:
-        return jsonify({
-            "success": False,
-            "output": "",
-            "error": str(e)
-        }), 500
+        return {"success": False, "error": str(e)}
+
+@app.route('/run-script')
+def execute_script():
+    result = run_selenium_script()
+    if result['success']:
+        return jsonify(result)
+    else:
+        return jsonify(result), 500
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=10000)
