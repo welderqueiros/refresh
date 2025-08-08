@@ -1,6 +1,14 @@
 from flask import Flask, render_template
-import subprocess
 import os
+import subprocess
+
+# Instalar Chrome e Chromedriver no runtime
+subprocess.run("wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb", shell=True)
+subprocess.run("apt-get update && apt-get install -y ./google-chrome-stable_current_amd64.deb", shell=True)
+subprocess.run("apt-get install -y chromium-driver", shell=True)
+
+# Definir caminho do Chrome para o Selenium
+os.environ["PATH"] += os.pathsep + "/usr/bin"
 
 app = Flask(__name__)
 
