@@ -19,7 +19,7 @@ def index():
 @app.route("/executar")
 def executar():
     try:
-        # Inicia o script em background numa nova sessão para não ser morto pelo pai
+        # Executa o Selenium script em background
         subprocess.Popen(
             ["python3", "selenium_script.py"],
             start_new_session=True
