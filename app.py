@@ -1,33 +1,33 @@
-from flask import Flask, render_template
-import os
+from flask import Flask, jsonify
 import subprocess
-
-# Instalar Chrome e Chromedriver no runtime
-subprocess.run("wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb", shell=True)
-subprocess.run("apt-get update && apt-get install -y ./google-chrome-stable_current_amd64.deb", shell=True)
-subprocess.run("apt-get install -y chromium-driver", shell=True)
-
-# Definir caminho do Chrome para o Selenium
-os.environ["PATH"] += os.pathsep + "/usr/bin"
+import os
 
 app = Flask(__name__)
 
-@app.route("/")
-def index():
-    return render_template("index.html")
+@app.route('/')
+def home():
+    return "Serviço está rodando"
 
-@app.route("/executar")
-def executar():
+@app.route('/run-script')
+def run_script():
     try:
-        # Executa o Selenium script em background
-        subprocess.Popen(
-            ["python3", "selenium_script.py"],
-            start_new_session=True
+        # Executa o script em um novo processo
+        result = subprocess.run(
+            ['python', 'run_selenium.py'],
+            capture_output=True,
+            text=True
         )
-        return "Script iniciado com sucesso!"
+        
+        return jsonify({
+            "success": True,
+            "output": result.stdout,
+            "error": result.stderr
+        })
     except Exception as e:
-        return f"Erro ao iniciar script: {e}"
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=10000)
